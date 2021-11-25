@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: MiniC Assignment 3
+Implementation-Version: AstGen
+Main-Class: MiniC.MiniC
+

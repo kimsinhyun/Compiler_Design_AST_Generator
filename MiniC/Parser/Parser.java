@@ -139,13 +139,16 @@ public class Parser {
     }
     SourcePos pos = new SourcePos();
     start(pos);
-    Type T = parseTypeSpecifier();
-    ID Ident = parseID();
-    if(currentToken.kind == Token.LEFTPAREN) {
+    Type T = parseTypeSpecifier();                  //isTypeSpecifiler
+    ID Ident = parseID();                           //ID
+    if(currentToken.kind == Token.LEFTPAREN) {      //FunPart
       Decl newD = parseFunPart(T, Ident, pos);
       return new DeclSequence (newD, parseProgDecls(), previousTokenPosition);
     } else {
       DeclSequence Vars = parseVarPart(T, Ident);
+      if(Vars == null){                               //ex) int i;
+        return new EmptyDecl(previousTokenPosition);
+      }
       DeclSequence VarsTail = Vars.GetRightmostDeclSequenceNode();
       Decl RemainderDecls = parseProgDecls();
       VarsTail.SetRightSubtree (RemainderDecls);
@@ -274,7 +277,7 @@ public class Parser {
       acceptIt();
       // You can use the following code after you have implemented
       // parseInitializer():
-      // E = parseInitializer();
+      E = parseInitializer();
     }
     D = new VarDecl (theType, Ident, E, previousTokenPosition);
     // You can use the following code after implementatin of parseInitDecl():
@@ -287,8 +290,49 @@ public class Parser {
        previousTokenPosition);
        }
      */
+    
     accept (Token.SEMICOLON);
     return Seq;
+  }
+
+  public Expr parseInitializer() throws SyntaxError{
+    Expr expr;
+    // if(currentToken.kind == Toekn.LEFTBRACE){
+    //   accept(Token.LEFTBRACE);
+    //   expr = parseExpr();
+    //   while(currentToken.kind == Token.COMMA){
+    //     accept(Token.COMMA);
+    //     expr = parseExpr();
+    //   }
+    // }
+    expr = parseExpr();
+    return;
+  }
+
+  public Expr parseExpr() throws SyntaxError{
+    Expr andExpr;
+    andExpr = parseAndExpr();
+    return andExpr;
+  }
+  public Expr parseAndExpr() throws SyntaxError{
+    Expr relation;
+    relation = parseRelationalExpr();
+    return relation;
+  }
+  public Expr parseRelationalExpr() throws SyntaxError{
+    Expr addExpr;
+    addExpr = praseAddExpr();
+    return addExpr;
+  }
+  public Expr praseAddExpr() throws SyntaxError{
+    Expr multExpr;
+    multExpr = parseMultExpr();
+    return multExpr;
+  }
+  public Expr parseMultExpr() throws SyntaxError{
+    Expr unaryExpr;
+    unaryExpr = UnaryExpr();
+    return unaryExpr;
   }
 
 
@@ -326,7 +370,18 @@ public class Parser {
 
   public Expr parsePrimaryExpr() throws SyntaxError {
     Expr retExpr = null;
-
+    if(currentToken.kind == Token.INTLITERAL){
+      return 
+    }
+    else if(currentToken.kind == Token.INTLITERAL){
+      
+    }
+    else if(currentToken.kind == Token.INTLITERAL){
+      
+    }
+    else if(currentToken.kind == Token.INTLITERAL){
+      
+    }
     // your code goes here...
 
 
