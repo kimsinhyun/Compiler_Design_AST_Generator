@@ -72,7 +72,18 @@ public class Parser {
     }
   }
 
-
+  boolean ifFirst_primary_expr(int token){
+    if (token == Token.INTLITERAL ||
+      token == Token.FLOATLITERAL  ||
+      token == Token.STRINGLITERAL  ||
+      token == Token.BOOLLITERAL ||
+      token == Token.LEFTPAREN ||
+      token == Token.ID) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   ///////////////////////////////////////////////////////////////////////////////
   //
   // parseArrayIndexDecl (Type T):
@@ -410,6 +421,9 @@ public class Parser {
       acceptIt();
       return new StringExpr(new StringLiteral(tempLexeme,pos),pos);
     }
+    else if(currentToken.kind == Token.ID){
+      System.out.println("llllllllllllllllll");
+    }
     // your code goes here...
 
 
@@ -443,7 +457,6 @@ public class Parser {
   public Stmt parseStmt() throws SyntaxError{
     SourcePos pos = new SourcePos();
     start(pos);
-    CallStmt callStmt = null;
     if(currentToken.kind == Token.LEFTBRACE){
       CompoundStmt compoundStmt = parseCompoundStmt();
       return compoundStmt;
@@ -487,6 +500,29 @@ public class Parser {
         assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
         return assginStmt;
       }
+      else if( currentToken.kind == Token.LEFTPAREN){
+        CallStmt callStmt = null;
+        accept(Token.LEFTPAREN);
+        if(ifFirst_primary_expr(currentToken.kind)){                                  //"(" (expr ("," expr)* )? ")"
+          CallExpr callExpr;
+          callExpr = new CallExpr(ident, parseExpr(), pos);
+          callStmt = new CallStmt(callExpr, pos);
+          // if(currentToken.kind == Token.COMMA){                                    //("," expr)*
+          System.out.println("bbbbbbbbbbbbbbb");
+            
+          // }
+        }
+        else{
+          CallExpr callExpr;
+          callExpr = new CallExpr(ident, new EmptyExpr(previousTokenPosition), pos);
+          callStmt = new CallStmt(callExpr, pos);
+          accept(Token.RIGHTPAREN);
+          return callStmt;
+        }
+        accept(Token.RIGHTPAREN);
+        System.out.println("aaaaaaaaaaaaa");
+        return callStmt;
+      }
       return null;
     }
     return null;
@@ -504,7 +540,6 @@ public class Parser {
     }
     Stmt S = null;
     // You can use the following code after implementation of parseStmt():
-    System.out.println("asdasdasdadadadadadsa");
     S = parseStmt();
     accept(Token.SEMICOLON);
     return new StmtSequence (S, parseCompoundStmts(), previousTokenPosition);
