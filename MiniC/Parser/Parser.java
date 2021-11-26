@@ -323,7 +323,7 @@ public class Parser {
 
   public Expr parseInitializer() throws SyntaxError{
     Expr expr;
-    // if(currentToken.kind == Toekn.LEFTBRACE){
+    // if(currentToken.kind == Token.LEFTBRACE){
     //   accept(Token.LEFTBRACE);
     //   expr = parseExpr();
     //   while(currentToken.kind == Token.COMMA){
@@ -498,6 +498,10 @@ public class Parser {
       Stmt ifStmt = parseIFStmt();
       return ifStmt;
     }
+    else if(currentToken.kind == Token.FOR){
+      Stmt forStmt = parseForStmt();
+      return forStmt;
+    }
     else if (currentToken.kind == Token.ID){                                                            //stmt = ID .......
       ID ident = new ID(currentToken.GetLexeme(),pos);
       VarExpr varExpr = new VarExpr(ident,pos);
@@ -550,7 +554,49 @@ public class Parser {
     }
     return new IfStmt(expr,stmt,previousTokenPosition);
   }
-
+  public Stmt parseForStmt() throws SyntaxError{
+    Expr expr1 = null;
+    Expr expr2 = null;
+    Expr expr3 = null;
+    Stmt stmt;
+    accept(Token.FOR);
+    accept(Token.LEFTPAREN);
+    if(currentToken.kind == Token.ID){
+      accept(Token.ID);
+      accept(Token.ASSIGN);
+      expr1 = parseExpr();
+    }
+    accept(Token.SEMICOLON);
+    if(ifFirst_primary_expr(currentToken.kind)){
+      expr2 = parseExpr();
+    }
+    accept(Token.SEMICOLON);
+    if(currentToken.kind == Token.ID){
+      accept(Token.ID);
+      accept(Token.ASSIGN);
+      expr3 = parseExpr();
+    }
+    accept(Token.RIGHTPAREN);
+    stmt = parseStmt();
+    if(expr1 == null){
+      expr1 = new EmptyExpr(previousTokenPosition);
+    }
+    if(expr2 == null){
+      expr2 = new EmptyExpr(previousTokenPosition);
+    }
+    if(expr3 == null){
+      expr3 = new EmptyExpr(previousTokenPosition);
+    }
+    return new ForStmt(expr1,expr2,expr3,stmt,previousTokenPosition);
+  }
+  // ID ident = new ID(currentToken.GetLexeme(),pos);
+  // VarExpr varExpr = new VarExpr(ident,pos);
+  // accept(Token.ID);
+  //                                                                                                   //stmt ::= ID "=" expr ';'
+  // if(currentToken.kind == Token.ASSIGN){
+  //   AssignStmt assginStmt;
+  //   accept(Token.ASSIGN);
+  //   assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
   public Stmt parseCompoundStmts () throws SyntaxError {
     if (! (currentToken.kind == Token.LEFTBRACE ||
           currentToken.kind == Token.IF ||
