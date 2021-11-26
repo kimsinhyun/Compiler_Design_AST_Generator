@@ -448,18 +448,29 @@ public class Parser {
     else if(currentToken.kind == Token.LEFTPAREN){          // primary-expr ::= "(" expr ")"
       accept(Token.LEFTPAREN);
       Expr expr;
-      expr = parseExpr();
+      expr = parseExprs();
       accept(Token.RIGHTPAREN);
       return expr;
     }
     // your code goes here...
-
-
-
-
     return retExpr;
   }
-
+  public Expr parseExprs () throws SyntaxError {
+    Expr expr1 = null;
+    Expr expr2 = null;
+    Operator op = null;
+    // You can use the following code after implementation of parseStmt():
+    expr1 = parseExpr();
+    System.out.println("111111111111111111111111111111111111 ->  " + currentToken.GetLexeme());
+    if(currentToken.kind == Token.MINUS || currentToken.kind == Token.PLUS || currentToken.kind == Token.TIMES || currentToken.kind == Token.DIV){
+      op = new Operator(currentToken.GetLexeme(),previousTokenPosition);
+      acceptIt();
+    }
+    expr2 = parseExpr();
+    // accept(Token.SEMICOLON);
+    return new BinaryExpr (expr1, op,expr2, previousTokenPosition);
+    // return expr;
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //
@@ -489,18 +500,6 @@ public class Parser {
       CompoundStmt compoundStmt = parseCompoundStmt();
       return compoundStmt;
     }
-    // else if (currentToken.kind == Token.IF){
-    //   return parseIfStmt();
-    // }
-    // else if (currentToken.kind == Token.WHILE){
-    //   return parseWhileStmt();
-    // }
-    // else if (currentToken.kind == Token.FOR){
-    //   return parseForStmt();
-    // }
-    // else if (currentToken.kind == Token.RETURN){
-    //   return parseReturnStmt();
-    // }
     else if (currentToken.kind == Token.ID){
       ID ident = new ID(currentToken.GetLexeme(),pos);
       VarExpr varExpr = new VarExpr(ident,pos);
