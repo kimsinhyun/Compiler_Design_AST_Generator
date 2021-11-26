@@ -348,6 +348,12 @@ public class Parser {
   public Expr parseRelationalExpr() throws SyntaxError{
     Expr addExpr;
     addExpr = praseAddExpr();
+    if(currentToken.kind == Token.EQ || currentToken.kind == Token.NOTEQ || currentToken.kind == Token.LESSEQ || 
+    currentToken.kind == Token.LESS || currentToken.kind == Token.GREATER || currentToken.kind == Token.GREATEREQ){
+      Operator opAst = new Operator(currentToken.GetLexeme(), previousTokenPosition);
+      acceptIt();
+      return new BinaryExpr(addExpr,opAst,praseAddExpr(),previousTokenPosition);
+    }
     return addExpr;
   }
   public Expr praseAddExpr() throws SyntaxError{
@@ -367,7 +373,6 @@ public class Parser {
       Operator opAST = new Operator (currentToken.GetLexeme(),previousTokenPosition);
       acceptIt();
       return new BinaryExpr(unaryExpr, opAST,parseMultExpr(),previousTokenPosition);
-      
     }
     return unaryExpr;
   }
@@ -485,11 +490,15 @@ public class Parser {
   public Stmt parseStmt() throws SyntaxError{
     SourcePos pos = new SourcePos();
     start(pos);
-    if(currentToken.kind == Token.LEFTBRACE){
+    if(currentToken.kind == Token.LEFTBRACE){                                                           //stmt = CompoundStmt
       CompoundStmt compoundStmt = parseCompoundStmt();
       return compoundStmt;
     }
-    else if (currentToken.kind == Token.ID){
+    else if(currentToken.kind == Token.IF){                                                             //stmt ::= if_stmt
+      Stmt ifStmt = parseIFStmt();
+      return ifStmt;
+    }
+    else if (currentToken.kind == Token.ID){                                                            //stmt = ID .......
       ID ident = new ID(currentToken.GetLexeme(),pos);
       VarExpr varExpr = new VarExpr(ident,pos);
       accept(Token.ID);
@@ -498,11 +507,12 @@ public class Parser {
         AssignStmt assginStmt;
         accept(Token.ASSIGN);
         assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
+        System.out.println("---------------------------------------------" + currentToken.GetLexeme());
+        accept(Token.SEMICOLON);
         return assginStmt;
       }
       else if( currentToken.kind == Token.LEFTPAREN){                                                   //stmt ::= ID arglist ";"
         Expr argList = parseArgList();
-
         CallExpr callExpr;
         CallStmt callStmt;
         // D.getClass() == EmptyDecl.class
@@ -513,12 +523,32 @@ public class Parser {
           callExpr = new CallExpr(ident, argList, pos);
         }
         callStmt = new CallStmt(callExpr, pos);
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++   " + currentToken.GetLexeme());
+        accept(Token.SEMICOLON);
         return callStmt;
         
       }
       return null;
     }
     return null;
+  }
+
+  public Stmt parseIFStmt() throws SyntaxError{
+    Expr expr = null;
+    Stmt stmt;
+    accept(Token.IF);
+    accept(Token.LEFTPAREN);
+    expr = parseExpr();
+    accept(Token.RIGHTPAREN);
+    stmt = parseStmt();
+    System.out.println("ccccccccccc->  " + currentToken.GetLexeme());
+    if(currentToken.kind == Token.ELSE){
+      accept(Token.ELSE);
+      System.out.println("ccccccccccc->  " + currentToken.GetLexeme());
+      Stmt stmt2 = parseStmt();
+      return new IfStmt(expr,stmt,stmt2,previousTokenPosition);
+    }
+    return new IfStmt(expr,stmt,previousTokenPosition);
   }
 
   public Stmt parseCompoundStmts () throws SyntaxError {
@@ -536,7 +566,7 @@ public class Parser {
     S = parseStmt();
     System.out.println("111111111111111111111111111111111111");
 
-    accept(Token.SEMICOLON);
+    // accept(Token.SEMICOLON);
     return new StmtSequence (S, parseCompoundStmts(), previousTokenPosition);
   }
 
