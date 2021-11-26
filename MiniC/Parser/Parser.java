@@ -359,7 +359,6 @@ public class Parser {
     Expr unaryExpr;
     unaryExpr = parseUnaryExpr();
     if((currentToken.kind == Token.TIMES) || (currentToken.kind == Token.DIV)){
-      System.out.println("ddddddddddddddddddddddd");
       Operator opAST = new Operator (currentToken.GetLexeme(),previousTokenPosition);
       acceptIt();
       return new BinaryExpr(unaryExpr, opAST,parseMultExpr(),previousTokenPosition);
@@ -382,7 +381,7 @@ public class Parser {
     if (currentToken.kind == Token.PLUS ||
         currentToken.kind == Token.MINUS ||
         currentToken.kind == Token.NOT) {
-      Operator opAST = new Operator (currentToken.GetLexeme(),
+          Operator opAST = new Operator (currentToken.GetLexeme(),
           previousTokenPosition);
       acceptIt();
       return new UnaryExpr (opAST, parseUnaryExpr(), previousTokenPosition);
@@ -443,15 +442,14 @@ public class Parser {
         accept(Token.RIGHTBRACKET);
         return expr;
       }
-      System.out.println("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      System.out.println("ccccccccccccccccccccccccccccccccccc");
       return new VarExpr(ident,pos);
     }
-    else if(currentToken.kind == Token.LEFTBRACE){          // primary-expr ::= "(" expr ")"
-      accept(Token.LEFTBRACE);
-      accept(Token.LEFTBRACKET);
+    else if(currentToken.kind == Token.LEFTPAREN){          // primary-expr ::= "(" expr ")"
+      accept(Token.LEFTPAREN);
       Expr expr;
       expr = parseExpr();
-      accept(Token.RIGHTBRACKET);
+      accept(Token.RIGHTPAREN);
       return expr;
     }
     // your code goes here...
@@ -548,6 +546,8 @@ public class Parser {
     Stmt S = null;
     // You can use the following code after implementation of parseStmt():
     S = parseStmt();
+    System.out.println("111111111111111111111111111111111111");
+
     accept(Token.SEMICOLON);
     return new StmtSequence (S, parseCompoundStmts(), previousTokenPosition);
   }
