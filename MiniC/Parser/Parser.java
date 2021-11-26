@@ -358,6 +358,13 @@ public class Parser {
   public Expr parseMultExpr() throws SyntaxError{
     Expr unaryExpr;
     unaryExpr = parseUnaryExpr();
+    if((currentToken.kind == Token.TIMES) || (currentToken.kind == Token.DIV)){
+      System.out.println("ddddddddddddddddddddddd");
+      Operator opAST = new Operator (currentToken.GetLexeme(),previousTokenPosition);
+      acceptIt();
+      return new BinaryExpr(unaryExpr, opAST,parseMultExpr(),previousTokenPosition);
+      
+    }
     return unaryExpr;
   }
 
@@ -382,7 +389,7 @@ public class Parser {
     }
     return parsePrimaryExpr();
   }
-
+ 
 
   ///////////////////////////////////////////////////////////////////////////////
   //
@@ -395,48 +402,57 @@ public class Parser {
   //
   ///////////////////////////////////////////////////////////////////////////////
 
-  public Expr parsePrimaryExpr() throws SyntaxError {
+  public Expr parsePrimaryExpr() throws SyntaxError {               
     Expr retExpr = null;
     SourcePos pos = currentToken.GetSourcePos();
     String tempLexeme;
-    if(currentToken.kind == Token.INTLITERAL){
+    if(currentToken.kind == Token.INTLITERAL){                        //primary-expr ::= INTLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
       return new IntExpr(new IntLiteral(tempLexeme,pos),pos);
     // public IntExpr (IntLiteral astIL, SourcePos pos) {
     }
-    else if(currentToken.kind == Token.BOOLLITERAL){
+    else if(currentToken.kind == Token.BOOLLITERAL){                  //primary-expr ::= BOOLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
       return new BoolExpr(new BoolLiteral(tempLexeme,pos),pos);
     }
-    else if(currentToken.kind == Token.FLOATLITERAL){
+    else if(currentToken.kind == Token.FLOATLITERAL){                 //primary-expr ::= FLOATLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
       return new FloatExpr(new FloatLiteral(tempLexeme,pos),pos);
     }
-    else if(currentToken.kind == Token.STRINGLITERAL){
+    else if(currentToken.kind == Token.STRINGLITERAL){                //primary-expr ::= STRINGLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
       return new StringExpr(new StringLiteral(tempLexeme,pos),pos);
     }
-    else if(currentToken.kind == Token.ID){
+    else if(currentToken.kind == Token.ID){                           ////primary-expr ::= ID ...........
       ID ident = new ID(currentToken.GetLexeme(),pos);
       accept(Token.ID);
-      if(currentToken.kind == Token.LEFTPAREN){              // primary-expr ::= ID (arglist? | "[" expr "]")
+      if(currentToken.kind == Token.LEFTPAREN){              // primary-expr ::= ID (arglist)?
         accept(Token.LEFTPAREN);
         Expr argList;
         argList = parseArgList();
         return argList;
       }
-      else if(currentToken.kind == Token.LEFTBRACKET){
+      else if(currentToken.kind == Token.LEFTBRACKET){      //   primary-expr ::= ID "[" expr "]"
         accept(Token.LEFTBRACKET);
         Expr expr;
         expr = parseExpr();
         accept(Token.RIGHTBRACKET);
         return expr;
       }
+      System.out.println("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
       return new VarExpr(ident,pos);
+    }
+    else if(currentToken.kind == Token.LEFTBRACE){          // primary-expr ::= "(" expr ")"
+      accept(Token.LEFTBRACE);
+      accept(Token.LEFTBRACKET);
+      Expr expr;
+      expr = parseExpr();
+      accept(Token.RIGHTBRACKET);
+      return expr;
     }
     // your code goes here...
 
@@ -491,55 +507,28 @@ public class Parser {
       ID ident = new ID(currentToken.GetLexeme(),pos);
       VarExpr varExpr = new VarExpr(ident,pos);
       accept(Token.ID);
-      // if(currentToken.kind == Token.LEFTBRACKET){      //stmt ::= ID "[" expr "]" "=" expr ';'
-      //   // Expr expr1;
-      //   // Expr expr2;
-      //   CallStmt callStmt1;
-      //   CallStmt callStmt2;
-      //   accept(Token.LEFTBRACKET);
-      //   // expr1 = parseExpr();
-      //   callStmt1 = new CallStmt(parseExpr(),pos);
-      //   accept(Token.RIGHTBRACKET);
-      //   accept(Token.ASSIGN);
-      //   // expr2 = parseExpr();
-      //   callStmt2 = new CallStmt(parseExpr(),pos);
-      //   accept(Token.SEMICOLON);
-      //   //--------------------------------------temp state!--------------------------------------
-      //   return callStmt1;
-      //   //--------------------------------------temp state!--------------------------------------
-      // }
+                                                                                                        //stmt ::= ID "=" expr ';'
       if(currentToken.kind == Token.ASSIGN){
         AssignStmt assginStmt;
         accept(Token.ASSIGN);
         assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
         return assginStmt;
       }
-      else if( currentToken.kind == Token.LEFTPAREN){
-        CallStmt callStmt = null;
-        accept(Token.LEFTPAREN);
-        if(ifFirst_primary_expr(currentToken.kind)){                                  //"(" (expr ("," expr)* )? ")"
-          
-          CallExpr callExpr;
-          ActualParamSequence actualParamSeq;
-          ActualParam actualparam = new ActualParam(parseExpr(),pos);
-          actualParamSeq = new ActualParamSequence(actualparam, new EmptyActualParam(previousTokenPosition),pos);
-          callExpr = new CallExpr(ident, actualParamSeq, pos);
-          callStmt = new CallStmt(callExpr, pos);
-          // if(currentToken.kind == Token.COMMA){                                    //("," expr)*
-          
-          // }
-          accept(Token.RIGHTPAREN);
-          return callStmt;
-        }
-        else{                                                                         // ex) foo();
-          CallExpr callExpr;
+      else if( currentToken.kind == Token.LEFTPAREN){                                                   //stmt ::= ID arglist ";"
+        Expr argList = parseArgList();
+
+        CallExpr callExpr;
+        CallStmt callStmt;
+        // D.getClass() == EmptyDecl.class
+        if(argList.getClass() == EmptyActualParam.class){
           callExpr = new CallExpr(ident, new EmptyActualParam(previousTokenPosition), pos);
-          callStmt = new CallStmt(callExpr, pos);
-          accept(Token.RIGHTPAREN);
-          return callStmt;
         }
-        // accept(Token.RIGHTPAREN);
-        // return callStmt;
+        else{
+          callExpr = new CallExpr(ident, argList, pos);
+        }
+        callStmt = new CallStmt(callExpr, pos);
+        return callStmt;
+        
       }
       return null;
     }
@@ -591,18 +580,16 @@ public class Parser {
   public Expr parseArgs() throws SyntaxError {
     if (currentToken.kind == Token.RIGHTPAREN) {
       return new  EmptyActualParam (previousTokenPosition);
-    } 
+    }
     Expr Params = null;
     /*
      * You can use the following code after you have implemented parseExpr() aso.:
-     *
-     *
-     Params = new ActualParam (parseExpr(), previousTokenPosition);
-     if (currentToken.kind == Token.COMMA) {
-     acceptIt();
-     }
      */
-    return new ActualParamSequence (Params, parseArgs(), previousTokenPosition);
+    Params = new ActualParam (parseExpr(), previousTokenPosition);
+    if (currentToken.kind == Token.COMMA) {
+    acceptIt();
+    }
+    return new ActualParamSequence(Params, parseArgs(), previousTokenPosition);
   }
 
   public Expr parseArgList() throws SyntaxError {
