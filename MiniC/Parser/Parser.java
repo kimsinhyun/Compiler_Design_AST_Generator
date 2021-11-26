@@ -404,7 +404,6 @@ public class Parser {
       acceptIt();
       return new IntExpr(new IntLiteral(tempLexeme,pos),pos);
     // public IntExpr (IntLiteral astIL, SourcePos pos) {
-
     }
     else if(currentToken.kind == Token.BOOLLITERAL){
       tempLexeme = currentToken.GetLexeme();
@@ -422,7 +421,22 @@ public class Parser {
       return new StringExpr(new StringLiteral(tempLexeme,pos),pos);
     }
     else if(currentToken.kind == Token.ID){
-      System.out.println("llllllllllllllllll");
+      ID ident = new ID(currentToken.GetLexeme(),pos);
+      accept(Token.ID);
+      if(currentToken.kind == Token.LEFTPAREN){              // primary-expr ::= ID (arglist? | "[" expr "]")
+        accept(Token.LEFTPAREN);
+        Expr argList;
+        argList = parseArgList();
+        return argList;
+      }
+      else if(currentToken.kind == Token.LEFTBRACKET){
+        accept(Token.LEFTBRACKET);
+        Expr expr;
+        expr = parseExpr();
+        accept(Token.RIGHTBRACKET);
+        return expr;
+      }
+      return new VarExpr(ident,pos);
     }
     // your code goes here...
 
@@ -504,24 +518,28 @@ public class Parser {
         CallStmt callStmt = null;
         accept(Token.LEFTPAREN);
         if(ifFirst_primary_expr(currentToken.kind)){                                  //"(" (expr ("," expr)* )? ")"
+          
           CallExpr callExpr;
-          callExpr = new CallExpr(ident, parseExpr(), pos);
+          ActualParamSequence actualParamSeq;
+          ActualParam actualparam = new ActualParam(parseExpr(),pos);
+          actualParamSeq = new ActualParamSequence(actualparam, new EmptyActualParam(previousTokenPosition),pos);
+          callExpr = new CallExpr(ident, actualParamSeq, pos);
           callStmt = new CallStmt(callExpr, pos);
           // if(currentToken.kind == Token.COMMA){                                    //("," expr)*
-          System.out.println("bbbbbbbbbbbbbbb");
-            
+          
           // }
+          accept(Token.RIGHTPAREN);
+          return callStmt;
         }
-        else{
+        else{                                                                         // ex) foo();
           CallExpr callExpr;
-          callExpr = new CallExpr(ident, new EmptyExpr(previousTokenPosition), pos);
+          callExpr = new CallExpr(ident, new EmptyActualParam(previousTokenPosition), pos);
           callStmt = new CallStmt(callExpr, pos);
           accept(Token.RIGHTPAREN);
           return callStmt;
         }
-        accept(Token.RIGHTPAREN);
-        System.out.println("aaaaaaaaaaaaa");
-        return callStmt;
+        // accept(Token.RIGHTPAREN);
+        // return callStmt;
       }
       return null;
     }
