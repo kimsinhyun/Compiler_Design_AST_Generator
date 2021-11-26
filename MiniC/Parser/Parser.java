@@ -439,9 +439,58 @@ public class Parser {
     VarsTail.SetRightSubtree (RemainderDecls);
     return Vars;       
   }
-  // public Stmt parseStmt() throws SyntaxError{
-
-  // }
+  
+  public Stmt parseStmt() throws SyntaxError{
+    SourcePos pos = new SourcePos();
+    start(pos);
+    CallStmt callStmt = null;
+    if(currentToken.kind == Token.LEFTBRACE){
+      CompoundStmt compoundStmt = parseCompoundStmt();
+      return compoundStmt;
+    }
+    // else if (currentToken.kind == Token.IF){
+    //   return parseIfStmt();
+    // }
+    // else if (currentToken.kind == Token.WHILE){
+    //   return parseWhileStmt();
+    // }
+    // else if (currentToken.kind == Token.FOR){
+    //   return parseForStmt();
+    // }
+    // else if (currentToken.kind == Token.RETURN){
+    //   return parseReturnStmt();
+    // }
+    else if (currentToken.kind == Token.ID){
+      ID ident = new ID(currentToken.GetLexeme(),pos);
+      VarExpr varExpr = new VarExpr(ident,pos);
+      accept(Token.ID);
+      // if(currentToken.kind == Token.LEFTBRACKET){      //stmt ::= ID "[" expr "]" "=" expr ';'
+      //   // Expr expr1;
+      //   // Expr expr2;
+      //   CallStmt callStmt1;
+      //   CallStmt callStmt2;
+      //   accept(Token.LEFTBRACKET);
+      //   // expr1 = parseExpr();
+      //   callStmt1 = new CallStmt(parseExpr(),pos);
+      //   accept(Token.RIGHTBRACKET);
+      //   accept(Token.ASSIGN);
+      //   // expr2 = parseExpr();
+      //   callStmt2 = new CallStmt(parseExpr(),pos);
+      //   accept(Token.SEMICOLON);
+      //   //--------------------------------------temp state!--------------------------------------
+      //   return callStmt1;
+      //   //--------------------------------------temp state!--------------------------------------
+      // }
+      if(currentToken.kind == Token.ASSIGN){
+        AssignStmt assginStmt;
+        accept(Token.ASSIGN);
+        assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
+        return assginStmt;
+      }
+      return null;
+    }
+    return null;
+  }
 
   public Stmt parseCompoundStmts () throws SyntaxError {
     if (! (currentToken.kind == Token.LEFTBRACE ||
@@ -455,7 +504,9 @@ public class Parser {
     }
     Stmt S = null;
     // You can use the following code after implementation of parseStmt():
-    // S = parseStmt();
+    System.out.println("asdasdasdadadadadadsa");
+    S = parseStmt();
+    accept(Token.SEMICOLON);
     return new StmtSequence (S, parseCompoundStmts(), previousTokenPosition);
   }
 
