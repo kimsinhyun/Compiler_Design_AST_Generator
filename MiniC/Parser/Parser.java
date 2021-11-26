@@ -353,6 +353,11 @@ public class Parser {
   public Expr praseAddExpr() throws SyntaxError{
     Expr multExpr;
     multExpr = parseMultExpr();
+    if((currentToken.kind == Token.PLUS) || (currentToken.kind == Token.MINUS)){
+      Operator opAST = new Operator (currentToken.GetLexeme(),previousTokenPosition);
+      acceptIt();
+      return new BinaryExpr(multExpr, opAST,praseAddExpr(),previousTokenPosition);
+    }
     return multExpr;
   }
   public Expr parseMultExpr() throws SyntaxError{
@@ -442,35 +447,19 @@ public class Parser {
         accept(Token.RIGHTBRACKET);
         return expr;
       }
-      System.out.println("ccccccccccccccccccccccccccccccccccc");
       return new VarExpr(ident,pos);
     }
     else if(currentToken.kind == Token.LEFTPAREN){          // primary-expr ::= "(" expr ")"
       accept(Token.LEFTPAREN);
       Expr expr;
-      expr = parseExprs();
+      expr = parseExpr();
       accept(Token.RIGHTPAREN);
       return expr;
     }
     // your code goes here...
     return retExpr;
   }
-  public Expr parseExprs () throws SyntaxError {
-    Expr expr1 = null;
-    Expr expr2 = null;
-    Operator op = null;
-    // You can use the following code after implementation of parseStmt():
-    expr1 = parseExpr();
-    System.out.println("111111111111111111111111111111111111 ->  " + currentToken.GetLexeme());
-    if(currentToken.kind == Token.MINUS || currentToken.kind == Token.PLUS || currentToken.kind == Token.TIMES || currentToken.kind == Token.DIV){
-      op = new Operator(currentToken.GetLexeme(),previousTokenPosition);
-      acceptIt();
-    }
-    expr2 = parseExpr();
-    // accept(Token.SEMICOLON);
-    return new BinaryExpr (expr1, op,expr2, previousTokenPosition);
-    // return expr;
-  }
+  
 
   ///////////////////////////////////////////////////////////////////////////////
   //
