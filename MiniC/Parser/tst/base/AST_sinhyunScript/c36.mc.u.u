@@ -19,7 +19,9 @@ Program
                      VarDecl
                         IntType
                         ID: max
-                        EmptyActualParam
+                        CallExpr
+                           ID: ReadInt
+                           EmptyActualParam
                      EmptyDecl
             StmtSequence
                ForStmt
@@ -49,7 +51,9 @@ Program
                         AssignStmt
                            VarExpr
                               ID: tmp
-                           EmptyActualParam
+                           CallExpr
+                              ID: ReadInt
+                              EmptyActualParam
                         StmtSequence
                            IfStmt
                               BinaryExpr
