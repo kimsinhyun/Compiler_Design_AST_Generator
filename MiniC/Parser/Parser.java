@@ -511,7 +511,6 @@ public class Parser {
         AssignStmt assginStmt;
         accept(Token.ASSIGN);
         assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
-        System.out.println("---------------------------------------------" + currentToken.GetLexeme());
         accept(Token.SEMICOLON);
         return assginStmt;
       }
@@ -527,7 +526,6 @@ public class Parser {
           callExpr = new CallExpr(ident, argList, pos);
         }
         callStmt = new CallStmt(callExpr, pos);
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++   " + currentToken.GetLexeme());
         accept(Token.SEMICOLON);
         return callStmt;
         
@@ -545,10 +543,8 @@ public class Parser {
     expr = parseExpr();
     accept(Token.RIGHTPAREN);
     stmt = parseStmt();
-    System.out.println("ccccccccccc->  " + currentToken.GetLexeme());
     if(currentToken.kind == Token.ELSE){
       accept(Token.ELSE);
-      System.out.println("ccccccccccc->  " + currentToken.GetLexeme());
       Stmt stmt2 = parseStmt();
       return new IfStmt(expr,stmt,stmt2,previousTokenPosition);
     }
@@ -610,7 +606,6 @@ public class Parser {
     Stmt S = null;
     // You can use the following code after implementation of parseStmt():
     S = parseStmt();
-    System.out.println("111111111111111111111111111111111111");
 
     // accept(Token.SEMICOLON);
     return new StmtSequence (S, parseCompoundStmts(), previousTokenPosition);

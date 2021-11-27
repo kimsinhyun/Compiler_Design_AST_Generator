@@ -1,1 +1,2 @@
-// this program is empty
+Program
+   EmptyDecl
