@@ -345,23 +345,23 @@ public class Parser {
       accept(Token.LEFTBRACE);
       expr = parseExpr();
       System.out.println("11111111111111111111111 --> " + currentToken.GetLexeme());
-      if(currentToken.kind == Token.COMMA){
+      // if(currentToken.kind == Token.COMMA){
         // accept(Token.COMMA);
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-        ExprSequence expr2 = parseExprs();
+        Expr expr2 = parseExprs();
         // accept(Token.RIGHTBRACE);
-        return expr2;
-      }
-      accept(Token.RIGHTBRACE);
-      return expr;
+        return new ExprSequence(expr,expr2,previousTokenPosition);
+      // }
+      // accept(Token.RIGHTBRACE);
+      // return expr;
     }
     else{
       expr = parseExpr();;
     }
     return expr; 
   }
-  public ExprSequence parseExprs() throws SyntaxError{
+  public Expr parseExprs() throws SyntaxError{
     if(currentToken.kind == Token.COMMA){
       accept(Token.COMMA);
       System.out.println("2222222222222222222222222222222 --> " + currentToken.GetLexeme());
@@ -370,7 +370,7 @@ public class Parser {
     System.out.println("44444444444444444444444444444444444 --> " + currentToken.GetLexeme());
     accept(Token.RIGHTBRACE);
     System.out.println("55555555555555555555555555555555555 --> " + currentToken.GetLexeme());
-    return new ExprSequence(parseExpr(),new EmptyExpr(previousTokenPosition),previousTokenPosition);
+    return new EmptyExpr(previousTokenPosition);
   }
 
   public Expr parseExpr() throws SyntaxError{
