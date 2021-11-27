@@ -1,4 +1,9 @@
 ********** MiniC Compiler **********
 Syntax Analysis ...
-ERROR: "}" expected here 5..5, line 4.
+asdasdasdasdasd-> ,
+asdasdasdasdasd-> ,
+asdasdasdasdasd-> ;
+11111111111111111111-> ;
+22222222222222222222-> ;
+ERROR: ";" not expected after end of program 15..15, line 9.
 Compilation was unsuccessful.
