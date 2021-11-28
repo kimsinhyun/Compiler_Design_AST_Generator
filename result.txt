@@ -1,9 +1,44 @@
 ********** MiniC Compiler **********
 Syntax Analysis ...
-asdasdasdasdasd-> ,
-asdasdasdasdasd-> ,
-asdasdasdasdasd-> ;
-11111111111111111111-> ;
-22222222222222222222-> ;
-ERROR: ";" not expected after end of program 15..15, line 9.
-Compilation was unsuccessful.
+}}}}}}}}}}}}}}}}}}}} -> {
+}}}}}}}}}}}}}}}}}}}} line -> 2
+}}}}}}}}}}}}}}}}}}}} col  -> 1
+%%%%%%%%%%%%%%%%%% -> (
+%%%%%%%%%%%%%%%%%% -> a
+********************* -> a
+%%%%%%%%%%%%%%%%%% -> 1
+######################## -> 1
+######################## tempLexeme -> 1
+%%%%%%%%%%%%%%%%%% -> (
+%%%%%%%%%%%%%%%%%% -> b
+********************* -> b
+%%%%%%%%%%%%%%%%%% -> 2
+######################## -> 2
+######################## tempLexeme -> 2
+currentToken -> !
+%%%%%%%%%%%%%%%%%% -> (
+%%%%%%%%%%%%%%%%%% -> a
+********************* -> a
+%%%%%%%%%%%%%%%%%% -> 22
+######################## -> 22
+######################## tempLexeme -> 22
+dddddddddddddddddddddddddd
+----------------------> =
+lllllllllllllllllllllllllllllll> a
+lllllllllllllllllllllllllllllll start line > 4
+lllllllllllllllllllllllllllllll start col > 10
+%%%%%%%%%%%%%%%%%% -> a
+********************* -> a
+%%%%%%%%%%%%%%%%%% -> 1
+######################## -> 1
+######################## tempLexeme -> 1
+ooooooooooooooooooooooo> ;
+%%%%%%%%%%%%%%%%%% -> b
+********************* -> b
+%%%%%%%%%%%%%%%%%% -> 2
+######################## -> 2
+######################## tempLexeme -> 2
+lastlast333333333333333333$
+lastlast444444444444444444444$
+lastlast5555555555555555555$
+Compilation was successful.

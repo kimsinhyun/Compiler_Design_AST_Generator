@@ -376,11 +376,21 @@ public class Parser {
   public Expr parseExpr() throws SyntaxError{
     Expr andExpr;
     andExpr = parseAndExpr();
+    if(currentToken.kind == Token.OR){
+      Operator opAst = new Operator(currentToken.GetLexeme(),previousTokenPosition);
+      accept(Token.OR);
+      return new BinaryExpr(andExpr, opAst,parseExpr(),previousTokenPosition);
+    }
     return andExpr;
   }
   public Expr parseAndExpr() throws SyntaxError{
     Expr relation;
     relation = parseRelationalExpr();
+    if(currentToken.kind == Token.AND){
+      Operator opAst = new Operator(currentToken.GetLexeme(),previousTokenPosition);
+      accept(Token.AND);
+      return new BinaryExpr(relation, opAst,parseAndExpr(),previousTokenPosition);
+    }
     return relation;
   }
   public Expr parseRelationalExpr() throws SyntaxError{
@@ -425,10 +435,11 @@ public class Parser {
   ///////////////////////////////////////////////////////////////////////////////
 
     
-    public Expr parseUnaryExpr() throws SyntaxError {
+  public Expr parseUnaryExpr() throws SyntaxError {
     if (currentToken.kind == Token.PLUS ||
         currentToken.kind == Token.MINUS ||
         currentToken.kind == Token.NOT) {
+          System.out.println("currentToken -> " + currentToken.GetLexeme());
           Operator opAST = new Operator (currentToken.GetLexeme(),
           previousTokenPosition);
       acceptIt();
@@ -457,6 +468,7 @@ public class Parser {
     if(currentToken.kind == Token.INTLITERAL){                        //primary-expr ::= INTLITERAL
       tempLexeme = currentToken.GetLexeme();
       System.out.println("######################## -> " + currentToken.GetLexeme());
+      System.out.println("######################## tempLexeme -> " + tempLexeme);
       acceptIt();
       return new IntExpr(new IntLiteral(tempLexeme,pos),pos);
     // public IntExpr (IntLiteral astIL, SourcePos pos) {
@@ -492,10 +504,11 @@ public class Parser {
       }
       else if(currentToken.kind == Token.LEFTBRACKET){      //   primary-expr ::= ID "[" expr "]"
         accept(Token.LEFTBRACKET);
+        System.out.println("ASDASDASDASDASDASDASD-> " + currentToken.GetLexeme());
         Expr expr;
         expr = parseExpr();
         accept(Token.RIGHTBRACKET);
-        return expr;
+        return new ArrayExpr(new VarExpr(ident,previousTokenPosition), expr,previousTokenPosition);
       }
       return new VarExpr(ident,pos);
     }
@@ -554,6 +567,16 @@ public class Parser {
       Stmt whileStmt = parseWhileStmt();
       return whileStmt;
     }
+    else if (currentToken.kind == Token.RETURN){
+      accept(Token.RETURN);
+      Expr expr = new EmptyExpr(previousTokenPosition);
+      if(ifFirst_primary_expr(currentToken.kind)){
+        expr = parseExpr();
+      }
+      accept(Token.SEMICOLON);
+      return new ReturnStmt(expr,previousTokenPosition);
+
+    }
     
     else if (currentToken.kind == Token.ID){                                                            //stmt = ID .......
       ID ident = new ID(currentToken.GetLexeme(),pos);
@@ -588,7 +611,19 @@ public class Parser {
         callStmt = new CallStmt(callExpr, pos);
         accept(Token.SEMICOLON);
         return callStmt;
+      }
+      else if(currentToken.kind  == Token.LEFTBRACKET){
+        accept(Token.LEFTBRACKET);
+        Expr expr1 = parseExpr();
+        accept(Token.RIGHTBRACKET);
+        accept(Token.ASSIGN);
+        Expr expr2 = parseExpr();
+        accept(Token.SEMICOLON);
         
+        // Expr expr1 = parseExpr();
+        // accept(Token.ASSIGN);
+        // Expr expr2 = parseExpr();
+        return new AssignStmt(new ArrayExpr(new VarExpr(ident,previousTokenPosition), expr1, previousTokenPosition), expr2, previousTokenPosition);
       }
       return new EmptyStmt(previousTokenPosition);
     }
