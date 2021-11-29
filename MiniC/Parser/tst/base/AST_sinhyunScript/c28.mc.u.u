@@ -8,20 +8,26 @@ Program
             EmptyDecl
             StmtSequence
                ForStmt
-                  IntExpr
-                     IntLiteral: 1
+                  AssignExpr
+                     VarExpr
+                        ID: j
+                     IntExpr
+                        IntLiteral: 1
                   BinaryExpr
                      VarExpr
                         ID: j
                      Operator: <
                      IntExpr
                         IntLiteral: 100
-                  BinaryExpr
+                  AssignExpr
                      VarExpr
                         ID: j
-                     Operator: +
-                     IntExpr
-                        IntLiteral: 1
+                     BinaryExpr
+                        VarExpr
+                           ID: j
+                        Operator: +
+                        IntExpr
+                           IntLiteral: 1
                   CompoundStmt
                      EmptyDecl
                      StmtSequence

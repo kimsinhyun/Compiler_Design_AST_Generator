@@ -125,16 +125,13 @@ public class Parser {
 
     try {
       ProgramAST = parseProgram();
-      System.out.println("lastlast444444444444444444444" + currentToken.GetLexeme());
       
       if (currentToken.kind != Token.EOF) {
-        System.out.println("lastlast5555555555555555555" + currentToken.GetLexeme());
         syntaxError("\"%\" not expected after end of program",
             currentToken.GetLexeme());
       }
     }
     catch (SyntaxError s) { return null; }
-      System.out.println("lastlast5555555555555555555" + currentToken.GetLexeme());
       return ProgramAST;
   }
 
@@ -150,7 +147,6 @@ public class Parser {
   // parseProgDecls: recursive helper function to facilitate AST construction.
   public Decl parseProgDecls () throws SyntaxError {
     if (! isTypeSpecifier(currentToken.kind)) {
-      System.out.println("lastlast333333333333333333" + currentToken.GetLexeme());
       return new EmptyDecl (previousTokenPosition);
     }
     SourcePos pos = new SourcePos();
@@ -161,14 +157,11 @@ public class Parser {
       Decl newD = parseFunPart(T, Ident, pos);
       return new DeclSequence (newD, parseProgDecls(), previousTokenPosition);
     } else {
-      System.out.println("firstfirst111111111111111111111");
       DeclSequence Vars = parseVarPart(T, Ident);
-      System.out.println("lastlast111111111111111111111" + currentToken.GetLexeme());
       if(Vars == null){                               //ex) int i;
         return new EmptyDecl(previousTokenPosition);
       }
       DeclSequence VarsTail = Vars.GetRightmostDeclSequenceNode();
-      System.out.println("lastlast22222222222222222" + currentToken.GetLexeme());
       Decl RemainderDecls = parseProgDecls();
       VarsTail.SetRightSubtree (RemainderDecls);
       return Vars;
@@ -289,9 +282,6 @@ public class Parser {
     Decl D;
     DeclSequence Seq = null;
     Expr E = new EmptyExpr(previousTokenPosition);
-    System.out.println("||||||||||||||||||||||||||||| -> " + currentToken.GetLexeme());
-    System.out.println("||||||||||||||||||||||||||||| line -> " + currentToken.GetSourcePos().StartLine);
-    System.out.println("||||||||||||||||||||||||||||| col  -> " + currentToken.GetSourcePos().StartCol);
     if (currentToken.kind == Token.LEFTBRACKET) {
       theType = parseArrayIndexDecl(T);
     }
@@ -306,23 +296,18 @@ public class Parser {
     // You can use the following code after implementatin of parseInitDecl():
     
     if (currentToken.kind == Token.COMMA) {
-      System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbb last token -> " + currentToken.GetLexeme());
       accept(Token.COMMA);
       Decl decl1 = parseInitDecl(T);
       return new DeclSequence (decl1, parseVarPart(T,Ident), previousTokenPosition);
     } 
-    // else {              //if not COMMA
-    //   System.out.println("vvvvvvvvvvvvvvvvvvvvvvv last token -> " + currentToken.GetLexeme());
       accept(Token.SEMICOLON);
       return new DeclSequence (D, new EmptyDecl (previousTokenPosition),
       previousTokenPosition);
-    // }
   }
   
   public Decl parseInitDecl(Type T) throws SyntaxError{
     Decl decl = null;
     Expr expr;
-    System.out.println("^^^^^^^^^^^^^^^^^ " + currentToken.GetLexeme());
     accept(Token.ID);
     if(currentToken.kind == Token.LEFTBRACKET){
       accept(Token.LEFTBRACKET);
@@ -344,10 +329,8 @@ public class Parser {
     if(currentToken.kind == Token.LEFTBRACE){
       accept(Token.LEFTBRACE);
       expr = parseExpr();
-      System.out.println("11111111111111111111111 --> " + currentToken.GetLexeme());
       // if(currentToken.kind == Token.COMMA){
         // accept(Token.COMMA);
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         Expr expr2 = parseExprs();
         // accept(Token.RIGHTBRACE);
@@ -364,12 +347,9 @@ public class Parser {
   public Expr parseExprs() throws SyntaxError{
     if(currentToken.kind == Token.COMMA){
       accept(Token.COMMA);
-      System.out.println("2222222222222222222222222222222 --> " + currentToken.GetLexeme());
       return new ExprSequence(parseExpr(), parseExprs() ,previousTokenPosition);
     }
-    System.out.println("44444444444444444444444444444444444 --> " + currentToken.GetLexeme());
     accept(Token.RIGHTBRACE);
-    System.out.println("55555555555555555555555555555555555 --> " + currentToken.GetLexeme());
     return new EmptyExpr(previousTokenPosition);
   }
 
@@ -439,7 +419,6 @@ public class Parser {
     if (currentToken.kind == Token.PLUS ||
         currentToken.kind == Token.MINUS ||
         currentToken.kind == Token.NOT) {
-          System.out.println("currentToken -> " + currentToken.GetLexeme());
           Operator opAST = new Operator (currentToken.GetLexeme(),
           previousTokenPosition);
       acceptIt();
@@ -464,11 +443,8 @@ public class Parser {
     Expr retExpr = null;
     SourcePos pos = currentToken.GetSourcePos();
     String tempLexeme;
-    System.out.println("%%%%%%%%%%%%%%%%%% -> " + currentToken.GetLexeme());
     if(currentToken.kind == Token.INTLITERAL){                        //primary-expr ::= INTLITERAL
       tempLexeme = currentToken.GetLexeme();
-      System.out.println("######################## -> " + currentToken.GetLexeme());
-      System.out.println("######################## tempLexeme -> " + tempLexeme);
       acceptIt();
       return new IntExpr(new IntLiteral(tempLexeme,pos),pos);
     // public IntExpr (IntLiteral astIL, SourcePos pos) {
@@ -490,21 +466,15 @@ public class Parser {
     }
     else if(currentToken.kind == Token.ID){                           ////primary-expr ::= ID ...........
       ID ident = new ID(currentToken.GetLexeme(),pos);
-      System.out.println("********************* -> " + currentToken.GetLexeme());
       accept(Token.ID);
       if(currentToken.kind == Token.LEFTPAREN){              // primary-expr ::= ID (arglist)?
         // accept(Token.LEFTPAREN);
         Expr argList;
         argList = parseArgList();
-        System.out.println("++++++++++++++++++> " + currentToken.GetLexeme());
-        System.out.println("++++++++++++++++++ start line> " + currentToken.GetSourcePos().StartLine);
-        System.out.println("++++++++++++++++++ start col> " + currentToken.GetSourcePos().StartCol);
-
         return new CallExpr(ident,argList,previousTokenPosition);
       }
       else if(currentToken.kind == Token.LEFTBRACKET){      //   primary-expr ::= ID "[" expr "]"
         accept(Token.LEFTBRACKET);
-        System.out.println("ASDASDASDASDASDASDASD-> " + currentToken.GetLexeme());
         Expr expr;
         expr = parseExpr();
         accept(Token.RIGHTBRACKET);
@@ -521,7 +491,6 @@ public class Parser {
       return expr;
     }
     // your code goes here...
-    System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx> " + currentToken.GetLexeme());
     return new EmptyExpr(previousTokenPosition);
   }
   
@@ -543,7 +512,6 @@ public class Parser {
     DeclSequence Vars = parseVarPart(T, Ident);
     DeclSequence VarsTail = Vars.GetRightmostDeclSequenceNode();
     Decl RemainderDecls = parseCompoundDecls();
-    System.out.println(".....................  " + currentToken.GetLexeme());
     VarsTail.SetRightSubtree (RemainderDecls);
     return Vars;       
   }
@@ -581,18 +549,12 @@ public class Parser {
     else if (currentToken.kind == Token.ID){                                                            //stmt = ID .......
       ID ident = new ID(currentToken.GetLexeme(),pos);
       VarExpr varExpr = new VarExpr(ident,pos);
-      // System.out.println("----------------------> " + currentToken.GetLexeme());
       accept(Token.ID);
-      System.out.println("----------------------> " + currentToken.GetLexeme());
                                                                                                         
       if(currentToken.kind == Token.ASSIGN){                                                            //stmt ::= ID "=" expr ';'
         AssignStmt assginStmt;
         accept(Token.ASSIGN);
-        System.out.println("lllllllllllllllllllllllllllllll> " + currentToken.GetLexeme());
-        System.out.println("lllllllllllllllllllllllllllllll start line > " + currentToken.GetSourcePos().StartLine);
-        System.out.println("lllllllllllllllllllllllllllllll start col > " + currentToken.GetSourcePos().StartCol);
         assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
-        System.out.println("ooooooooooooooooooooooo> " + currentToken.GetLexeme());
         accept(Token.SEMICOLON);
         return assginStmt;
       }
@@ -638,7 +600,6 @@ public class Parser {
     accept(Token.LEFTPAREN);
     expr = parseExpr();
     accept(Token.RIGHTPAREN);
-    System.out.println("dddddddddddddddddddddddddd");
     stmt = parseStmt();
     if(currentToken.kind == Token.ELSE){
       accept(Token.ELSE);
@@ -717,9 +678,6 @@ public class Parser {
   }
 
   public CompoundStmt parseCompoundStmt() throws SyntaxError {
-    System.out.println("}}}}}}}}}}}}}}}}}}}} -> " + currentToken.GetLexeme());
-    System.out.println("}}}}}}}}}}}}}}}}}}}} line -> " + currentToken.GetSourcePos().StartLine);
-    System.out.println("}}}}}}}}}}}}}}}}}}}} col  -> " + currentToken.GetSourcePos().StartCol);
     SourcePos pos = new SourcePos();
     start(pos);
     accept(Token.LEFTBRACE);
@@ -746,9 +704,6 @@ public class Parser {
 
   public Expr parseArgs() throws SyntaxError {          //args ::= expr ("," expr)*
     if (currentToken.kind == Token.RIGHTPAREN) {
-    System.out.println("qqqqqqqqqqqqqqqqqqqqqqq=> " + currentToken.GetLexeme());
-    System.out.println("qqqqqqqqqqqqqqqqqqqqqqq strat line => " + currentToken.GetSourcePos().StartLine);
-    System.out.println("qqqqqqqqqqqqqqqqqqqqqqq strat col => " + currentToken.GetSourcePos().StartCol);
     return new  EmptyActualParam (previousTokenPosition);
     }
     Expr Params = null;

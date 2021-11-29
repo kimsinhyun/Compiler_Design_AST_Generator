@@ -10,12 +10,15 @@ Program
                ForStmt
                   EmptyExpr
                   EmptyExpr
-                  BinaryExpr
+                  AssignExpr
                      VarExpr
                         ID: j
-                     Operator: +
-                     IntExpr
-                        IntLiteral: 1
+                     BinaryExpr
+                        VarExpr
+                           ID: j
+                        Operator: +
+                        IntExpr
+                           IntLiteral: 1
                   CompoundStmt
                      EmptyDecl
                      StmtSequence
