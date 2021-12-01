@@ -286,42 +286,45 @@ public class Parser {
       theType = parseArrayIndexDecl(T);
     }
     if (currentToken.kind == Token.ASSIGN) {
-      acceptIt();
-      // You can use the following code after you have implemented
-    // parseInitializer():
+      accept(Token.ASSIGN);
+      // You can use the following code after you have implemented parseInitializer():
       E = parseInitializer();
     }
     D = new VarDecl (theType, Ident, E, previousTokenPosition);
-    Seq = new DeclSequence(D, new EmptyDecl (previousTokenPosition),previousTokenPosition);
     // You can use the following code after implementatin of parseInitDecl():
     
     if (currentToken.kind == Token.COMMA) {
-      accept(Token.COMMA);
-      Decl decl1 = parseInitDecl(T);
-      return new DeclSequence (decl1, parseVarPart(T,Ident), previousTokenPosition);
+      Seq = new DeclSequence (D, parseInitDecls(T), previousTokenPosition);
     } 
-      accept(Token.SEMICOLON);
-      return new DeclSequence (D, new EmptyDecl (previousTokenPosition),
-      previousTokenPosition);
+    else{
+      Seq =  new DeclSequence (D, new EmptyDecl (previousTokenPosition),previousTokenPosition);
+    }
+    accept(Token.SEMICOLON);
+    return Seq;
+  }
+
+  public Decl parseInitDecls(Type T) throws SyntaxError{
+    if(currentToken.kind == Token.COMMA){
+      accept(Token.COMMA);
+      return new DeclSequence(parseInitDecl(T),parseInitDecls(T),previousTokenPosition);
+    }
+      return new EmptyDecl(previousTokenPosition);
   }
   
   public Decl parseInitDecl(Type T) throws SyntaxError{
-    Decl decl = null;
+    Decl decl = new EmptyDecl(previousTokenPosition);
     Expr expr;
-    accept(Token.ID);
+    ID ident = parseID();
     if(currentToken.kind == Token.LEFTBRACKET){
-      accept(Token.LEFTBRACKET);
-      accept(Token.INTLITERAL);
-      accept(Token.RIGHTBRACKET);
-    }
-    else{
-      decl = new EmptyDecl(previousTokenPosition);
+      T = parseArrayIndexDecl(T);
     }
     if(currentToken.kind == Token.ASSIGN){
       accept(Token.ASSIGN);
       expr = parseInitializer();
+      decl = new VarDecl(T,ident,expr,previousTokenPosition);
+      return decl;
     }
-    return decl;
+    return  new VarDecl(T,ident,new EmptyExpr(previousTokenPosition),previousTokenPosition);
   }
 
   public Expr parseInitializer() throws SyntaxError{
@@ -329,15 +332,8 @@ public class Parser {
     if(currentToken.kind == Token.LEFTBRACE){
       accept(Token.LEFTBRACE);
       expr = parseExpr();
-      // if(currentToken.kind == Token.COMMA){
-        // accept(Token.COMMA);
-
         Expr expr2 = parseExprs();
-        // accept(Token.RIGHTBRACE);
         return new ExprSequence(expr,expr2,previousTokenPosition);
-      // }
-      // accept(Token.RIGHTBRACE);
-      // return expr;
     }
     else{
       expr = parseExpr();;
@@ -441,31 +437,29 @@ public class Parser {
 
   public Expr parsePrimaryExpr() throws SyntaxError {               
     Expr retExpr = null;
-    SourcePos pos = currentToken.GetSourcePos();
     String tempLexeme;
     if(currentToken.kind == Token.INTLITERAL){                        //primary-expr ::= INTLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
-      return new IntExpr(new IntLiteral(tempLexeme,pos),pos);
-    // public IntExpr (IntLiteral astIL, SourcePos pos) {
+      return new IntExpr(new IntLiteral(tempLexeme,previousTokenPosition),previousTokenPosition);
     }
     else if(currentToken.kind == Token.BOOLLITERAL){                  //primary-expr ::= BOOLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
-      return new BoolExpr(new BoolLiteral(tempLexeme,pos),pos);
+      return new BoolExpr(new BoolLiteral(tempLexeme,previousTokenPosition),previousTokenPosition);
     }
     else if(currentToken.kind == Token.FLOATLITERAL){                 //primary-expr ::= FLOATLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
-      return new FloatExpr(new FloatLiteral(tempLexeme,pos),pos);
+      return new FloatExpr(new FloatLiteral(tempLexeme,previousTokenPosition),previousTokenPosition);
     }
     else if(currentToken.kind == Token.STRINGLITERAL){                //primary-expr ::= STRINGLITERAL
       tempLexeme = currentToken.GetLexeme();
       acceptIt();
-      return new StringExpr(new StringLiteral(tempLexeme,pos),pos);
+      return new StringExpr(new StringLiteral(tempLexeme,previousTokenPosition),previousTokenPosition);
     }
     else if(currentToken.kind == Token.ID){                           ////primary-expr ::= ID ...........
-      ID ident = new ID(currentToken.GetLexeme(),pos);
+      ID ident = new ID(currentToken.GetLexeme(),previousTokenPosition);
       accept(Token.ID);
       if(currentToken.kind == Token.LEFTPAREN){              // primary-expr ::= ID (arglist)?
         // accept(Token.LEFTPAREN);
@@ -480,7 +474,7 @@ public class Parser {
         accept(Token.RIGHTBRACKET);
         return new ArrayExpr(new VarExpr(ident,previousTokenPosition), expr,previousTokenPosition);
       }
-      return new VarExpr(ident,pos);
+      return new VarExpr(ident,previousTokenPosition);
     }
     else if(currentToken.kind == Token.LEFTPAREN){          // primary-expr ::= "(" expr ")"
       
@@ -517,8 +511,6 @@ public class Parser {
   }
   
   public Stmt parseStmt() throws SyntaxError{
-    SourcePos pos = new SourcePos();
-    start(pos);
     if(currentToken.kind == Token.LEFTBRACE){                                                           //stmt = CompoundStmt
       CompoundStmt compoundStmt = parseCompoundStmt();
       return compoundStmt;
@@ -547,14 +539,14 @@ public class Parser {
     }
     
     else if (currentToken.kind == Token.ID){                                                            //stmt = ID .......
-      ID ident = new ID(currentToken.GetLexeme(),pos);
-      VarExpr varExpr = new VarExpr(ident,pos);
+      ID ident = new ID(currentToken.GetLexeme(),previousTokenPosition);
+      VarExpr varExpr = new VarExpr(ident,previousTokenPosition);
       accept(Token.ID);
                                                                                                         
       if(currentToken.kind == Token.ASSIGN){                                                            //stmt ::= ID "=" expr ';'
         AssignStmt assginStmt;
         accept(Token.ASSIGN);
-        assginStmt = new AssignStmt(varExpr, parseExpr(),pos);
+        assginStmt = new AssignStmt(varExpr, parseExpr(),previousTokenPosition);
         accept(Token.SEMICOLON);
         return assginStmt;
       }
@@ -565,12 +557,12 @@ public class Parser {
         // D.getClass() == EmptyDecl.class
         if(argList.getClass() == EmptyActualParam.class){
 
-          callExpr = new CallExpr(ident, new EmptyActualParam(previousTokenPosition), pos);
+          callExpr = new CallExpr(ident, new EmptyActualParam(previousTokenPosition), previousTokenPosition);
         }
         else{
-          callExpr = new CallExpr(ident, argList, pos);
+          callExpr = new CallExpr(ident, argList, previousTokenPosition);
         }
-        callStmt = new CallStmt(callExpr, pos);
+        callStmt = new CallStmt(callExpr, previousTokenPosition);
         accept(Token.SEMICOLON);
         return callStmt;
       }
